@@ -1,22 +1,39 @@
-// SongPage.jsx
 import { useParams } from "react-router-dom";
-import { useState } from "react";
-import { songs } from "../data/songs";
-import { transposeChordLine } from "../components/transpose.js";
+import { useState, useEffect } from "react";
+import { parseChordPro } from "../utils/chordpro";
+import { transposeChordLine } from "../components/transpose";
 
 const SongPage = () => {
   const { songId } = useParams();
-  const song = songs.find((s) => s.id === songId);
-
+  const [song, setSong] = useState(null);
+  const [sections, setSections] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [semitones, setSemitones] = useState(0);
 
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/songs/${songId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setSong(data);
+        const parsed = parseChordPro(data.content || "");
+        setSections(parsed);
+      })
+      .catch((err) => {
+        console.error("Ошибка загрузки песни:", err);
+        setSong(null);
+      })
+      .finally(() => setLoading(false));
+  }, [songId]);
+
+  if (loading) return <div>Загрузка...</div>;
   if (!song) return <div>Песня не найдена</div>;
 
   return (
     <div>
       <h1 className="page-title">{song.title}</h1>
       <p className="page-subtitle">
-        Исполнитель: {song.artist} · Бой: {song.strum}
+        Исполнитель: {song.artist} · Тональность: {song.key || "—"}
       </p>
 
       <div style={{ marginBottom: 12 }}>
@@ -27,10 +44,9 @@ const SongPage = () => {
       </div>
 
       <div>
-        {song.sections.map((section, idx) => (
+        {sections.map((section, idx) => (
           <div key={idx} className={`song-section song-section--${section.type}`}>
             <h2>{section.label}</h2>
-
             {section.lines.map((line, i) => (
               <div key={i} className="song-line">
                 <div className="song-chords">
