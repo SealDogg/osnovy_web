@@ -1,69 +1,128 @@
-// Возвращает массив секций, каждая секция = { type, label, lines[] }
-// line = { chords: string, lyrics: string }
-export function parseChordPro(content) {
-  const lines = content.split('\n');
+export class ChordProParser {
+  constructor() {
+    this.chordsPattern = /\[([A-Ga-g]#?b?(?:m|sus|dim|aug|\d)*(?:\/[A-Ga-g]#?b?)?)\]/g;
+    this.sectionPattern = /^\[([^\]]+)\]$/;
+    this.directivePattern = /^\{([^}]+):([^}]+)\}$/;
+  }
 
-  const resultLines = [];
+  parse(chordproText) {
+    const lines = chordproText.split('\n');
+    const metadata = {};
+    const sections = [];
+    let currentSection = null;
 
-  for (const raw of lines) {
-    const line = raw.trimEnd();
+    for (let lineNum = 0; lineNum < lines.length; lineNum++) {
+      let line = lines[lineNum].replace(/\s+/g, ' ').trim();
 
-    // Пустые строки – разделитель абзацев
-    if (line === '') {
-      resultLines.push({ chords: '', lyrics: '' });
-      continue;
-    }
+      // Директивы {title: Yesterday}
+      if (this.directivePattern.test(line)) {
+        const match = line.match(this.directivePattern);
+        metadata[match[1].toLowerCase()] = match[2].trim();
+        continue;
+      }
 
-    // Директивы {title:}, {artist:}, {verse} пропускаем
-    if (line.startsWith('{') && line.endsWith('}')) {
-      continue;
-    }
+      // Секции [Verse 1]
+      const sectionMatch = line.match(this.sectionPattern);
+      if (sectionMatch) {
+        if (currentSection) sections.push(currentSection);
+        currentSection = {
+          type: this._getSectionType(sectionMatch[1]),
+          title: sectionMatch[1],
+          lines: []
+        };
+        continue;
+      }
 
-    // Если в строке нет аккордов – просто текст
-    if (!/\[[A-G][#b]?(?:m|maj|min|dim|sus|add)?\d*\]/.test(line)) {
-      resultLines.push({ chords: '', lyrics: line });
-      continue;
-    }
-
-    // Строим две строки: chordsLine и lyricsLine с тем же количеством символов
-    let chordsLine = '';
-    let lyricsLine = '';
-    let i = 0;
-
-    while (i < line.length) {
-      if (line[i] === '[') {
-        const end = line.indexOf(']', i + 1);
-        if (end === -1) {
-          // нет закрывающей скобки — считаем остальное текстом
-          lyricsLine += line.slice(i);
-          chordsLine += ' '.repeat(line.length - i);
-          break;
-        }
-        const chord = line.slice(i + 1, end); // без скобок
-
-        // В chordsLine пишем сам аккорд, в lyricsLine — пробелы той же длины
-        chordsLine += chord;
-        lyricsLine += ' '.repeat(end - i + 1);
-
-        i = end + 1;
-      } else {
-        chordsLine += ' ';
-        lyricsLine += line[i];
-        i += 1;
+      // 🔥 ОСНОВНАЯ МАГИЯ: парсинг БЕЗ пробелов
+      if (currentSection && line) {
+        const parsedLine = this._parseLineWithPositions(line, lineNum);
+        currentSection.lines.push(parsedLine);
       }
     }
 
-    resultLines.push({
-      chords: chordsLine.trimEnd(),
-      lyrics: lyricsLine.trimStart(),
-    });
+    if (currentSection) sections.push(currentSection);
+
+    return {
+      metadata,
+      sections,
+      allChords: this._getAllChords(sections)
+    };
   }
 
-  return [
-    {
-      type: 'verse',
-      label: 'Песня',
-      lines: resultLines,
-    },
-  ];
+  _parseLineWithPositions(line, lineNum) {
+    const tokens = [];
+    let lastEnd = 0;
+    const chordMatches = [...line.matchAll(this.chordsPattern)];
+
+    // Добавляем все аккорды с позициями
+    chordMatches.forEach((match, index) => {
+      const chord = match[1];
+      const start = match.index;
+      const end = match.index + match[0].length;
+
+      // Текст ДО аккорда
+      if (start > lastEnd) {
+        const lyrics = line.slice(lastEnd, start).trim();
+        if (lyrics) {
+          tokens.push({ type: 'lyrics', text: lyrics, start: lastEnd, end: start });
+        }
+      }
+
+      // Сам аккорд
+      tokens.push({ 
+        type: 'chord', 
+        chord, 
+        start, 
+        end,
+        lineNum 
+      });
+
+      lastEnd = end;
+    });
+
+    // Последний кусок текста
+    if (lastEnd < line.length) {
+      const lyrics = line.slice(lastEnd).trim();
+      if (lyrics) {
+        tokens.push({ type: 'lyrics', text: lyrics, start: lastEnd, end: line.length });
+      }
+    }
+
+    return {
+      tokens,
+      html: this._renderLineHtml(tokens),
+      length: line.length
+    };
+  }
+
+  _renderLineHtml(tokens) {
+    return tokens.map(token => {
+      if (token.type === 'chord') {
+        return `<span class="chord" style="left: ${token.start}px">${token.chord}</span>`;
+      }
+      return `<span class="lyrics">${token.text}</span>`;
+    }).join('');
+  }
+
+  _getSectionType(title) {
+    const lower = title.toLowerCase();
+    if (lower.includes('chor')) return 'chorus';
+    if (lower.includes('bridge')) return 'bridge';
+    if (lower.includes('intro')) return 'intro';
+    return 'verse';
+  }
+
+  _getAllChords(sections) {
+    const chords = new Set();
+    sections.forEach(section => {
+      section.lines.forEach(line => {
+        line.tokens?.forEach(token => {
+          if (token.type === 'chord') chords.add(token.chord);
+        });
+      });
+    });
+    return Array.from(chords).sort();
+  }
 }
+
+export const parseChordPro = (text) => new ChordProParser().parse(text);

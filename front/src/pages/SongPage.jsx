@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { parseChordPro } from "../utils/chordpro";
-import { transposeChordLine } from "../components/transpose";
 
 const SongPage = () => {
   const { songId } = useParams();
@@ -9,54 +8,103 @@ const SongPage = () => {
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [semitones, setSemitones] = useState(0);
+  const [allChords, setAllChords] = useState([]);
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`/api/songs/${songId}`)
-      .then((res) => res.json())
-      .then((data) => {
+    const loadSong = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/songs/${songId}`);
+        if (!response.ok) throw new Error('Песня не найдена');
+        
+        const data = await response.json();
         setSong(data);
-        const parsed = parseChordPro(data.content || "");
-        setSections(parsed);
-      })
-      .catch((err) => {
-        console.error("Ошибка загрузки песни:", err);
+        
+        if (data.content) {
+          const parsed = parseChordPro(data.content);
+          setSections(parsed.sections);
+          setAllChords(parsed.allChords || []);
+        }
+      } catch (err) {
+        console.error("Ошибка:", err);
         setSong(null);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (songId) loadSong();
   }, [songId]);
 
-  if (loading) return <div>Загрузка...</div>;
-  if (!song) return <div>Песня не найдена</div>;
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div>Загрузка песни...</div>
+      </div>
+    );
+  }
+
+  if (!song) {
+    return (
+      <div className="not-found">
+        <h2>Песня не найдена</h2>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1 className="page-title">{song.title}</h1>
-      <p className="page-subtitle">
-        Исполнитель: {song.artist} · Тональность: {song.key || "—"}
-      </p>
+    <div className="song-page">
+      <header className="song-header">
+        <h1 className="page-title">{song.title}</h1>
+        <p className="page-subtitle">
+          {song.artist && `Исполнитель: ${song.artist}`}
+          {song.key && ` · Тональность: ${song.key}`}
+          {allChords.length > 0 && ` · Аккорды: ${allChords.slice(0, 5).join(', ')}${allChords.length > 5 ? '...' : ''}`}
+        </p>
+      </header>
 
-      <div style={{ marginBottom: 12 }}>
-        <span>Транспонировать: </span>
-        <button onClick={() => setSemitones((v) => v - 1)}>-</button>
-        <span style={{ margin: "0 8px" }}>{semitones}</span>
-        <button onClick={() => setSemitones((v) => v + 1)}>+</button>
+      <div className="controls">
+        <label>Транспонировать:</label>
+        <button 
+          onClick={() => setSemitones(s => Math.max(-12, s - 1))}
+          className="control-btn"
+        >
+          -
+        </button>
+        <span className="semitones-display">{semitones}</span>
+        <button 
+          onClick={() => setSemitones(s => Math.min(12, s + 1))}
+          className="control-btn"
+        >
+          +
+        </button>
       </div>
 
-      <div>
-        {sections.map((section, idx) => (
-          <div key={idx} className={`song-section song-section--${section.type}`}>
-            <h2>{section.label}</h2>
-            {section.lines.map((line, i) => (
-              <div key={i} className="song-line">
-                <div className="song-chords">
-                  {transposeChordLine(line.chords, semitones)}
-                </div>
-                <div className="song-lyrics">{line.lyrics}</div>
-              </div>
-            ))}
+      <div className="song-content">
+        {sections.length === 0 ? (
+          <div className="no-chords">
+            Аккорды не найдены в песне
           </div>
-        ))}
+        ) : (
+          sections.map((section, idx) => (
+            <section key={idx} className={`song-section song-section--${section.type}`}>
+              <h2 className="section-title">{section.title}</h2>
+              <div className="lyrics-container">
+                {section.lines.map((line, lineIdx) => (
+                  <div key={lineIdx} className="song-line">
+                    <div 
+                      className="lyrics-background"
+                      dangerouslySetInnerHTML={{ __html: line.html }}
+                    />
+                    <div className="lyrics-text">
+                      {line.lyrics || line.text || ''}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))
+        )}
       </div>
     </div>
   );

@@ -215,3 +215,38 @@
 2025/12/17 20:53:35 [notice] 13008#32860: signal process started
 2025/12/17 20:53:39 [error] 27336#5660: *105 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/docs HTTP/1.1", upstream: "http://[::1]:8000/docs", host: "localhost"
 2025/12/17 20:59:51 [notice] 16324#27736: signal process started
+2025/12/18 11:19:53 [error] 8536#14896: *1 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs HTTP/1.1", upstream: "http://[::1]:8000/songs", host: "localhost", referrer: "http://localhost/songs"
+2025/12/18 11:21:55 [notice] 25268#15432: signal process started
+2025/12/18 11:22:05 [error] 14948#29332: *1 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs HTTP/1.1", upstream: "http://[::1]:8000/songs", host: "localhost", referrer: "http://localhost/songs"
+2025/12/18 11:23:36 [emerg] 33256#19500: unexpected end of file, expecting "}" in D:\System\Documents\GitHub\osnovy_web\nginx-1.28.0/conf/nginx.conf:50
+2025/12/18 11:23:45 [emerg] 24212#19348: unexpected end of file, expecting "}" in D:\System\Documents\GitHub\osnovy_web\nginx-1.28.0/conf/nginx.conf:48
+2025/12/18 11:23:59 [notice] 29548#28500: signal process started
+2025/12/18 11:24:13 [notice] 30512#9736: signal process started
+2025/12/18 11:27:48 [notice] 22628#28248: signal process started
+2025/12/18 11:28:44 [notice] 31480#19092: signal process started
+2025/12/18 11:29:25 [notice] 24352#18612: signal process started
+2025/12/18 11:32:40 [notice] 17924#32556: signal process started
+2025/12/18 11:35:42 [notice] 23412#21872: signal process started
+2025/12/18 11:36:00 [notice] 21124#3008: signal process started
+2025/12/18 11:39:21 [notice] 18148#3656: signal process started
+2025/12/18 11:40:28 [notice] 32556#23844: signal process started
+2025/12/18 11:43:48 [notice] 12356#18972: signal process started
+2025/12/18 11:47:27 [notice] 19348#7464: signal process started
+2025/12/18 11:47:36 [error] 2864#7428: *20 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs HTTP/1.1", upstream: "http://[::1]:8000/songs", host: "localhost"
+2025/12/18 11:50:13 [notice] 24308#32692: signal process started
+2025/12/18 11:51:21 [notice] 26220#8316: signal process started
+2025/12/18 11:51:26 [error] 30460#932: *31 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs HTTP/1.1", upstream: "http://[::1]:8000/songs", host: "localhost", referrer: "http://localhost/songs"
+2025/12/18 11:52:31 [notice] 3236#30436: signal process started
+2025/12/18 11:52:37 [error] 12200#26548: *36 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs HTTP/1.1", upstream: "http://[::1]:8000/api/songs", host: "localhost", referrer: "http://localhost/songs"
+2025/12/18 12:05:21 [error] 12200#26548: *49 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs/1 HTTP/1.1", upstream: "http://[::1]:8000/api/songs/1", host: "localhost", referrer: "http://localhost/songs/1"
+2025/12/18 12:08:19 [error] 12200#26548: *60 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs/1 HTTP/1.1", upstream: "http://[::1]:8000/api/songs/1", host: "localhost", referrer: "http://localhost/songs/1"
+2025/12/18 12:08:52 [error] 12200#26548: *61 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs/1 HTTP/1.1", upstream: "http://[::1]:8000/api/songs/1", host: "localhost", referrer: "http://localhost/songs/1"
+2025/12/18 12:09:28 [notice] 26260#544: signal process started
+2025/12/18 12:10:44 [notice] 19208#7852: signal process started
+2025/12/18 12:10:49 [error] 26240#5800: *73 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs HTTP/1.1", upstream: "http://[::1]:8000/api/songs", host: "localhost"
+2025/12/18 12:11:09 [notice] 4716#23844: signal process started
+2025/12/18 12:11:16 [error] 22176#17836: *1 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs/1 HTTP/1.1", upstream: "http://[::1]:8000/api/songs/1", host: "localhost", referrer: "http://localhost/songs/1"
+2025/12/18 12:13:13 [notice] 25100#25784: signal process started
+2025/12/18 12:13:13 [error] 25100#25784: CreateFile() "D:\System\Documents\GitHub\osnovy_web\nginx-1.28.0/logs/nginx.pid" failed (2: The system cannot find the file specified)
+2025/12/18 12:13:33 [error] 22176#17836: *10 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api/songs HTTP/1.1", upstream: "http://[::1]:8000/api/songs", host: "localhost", referrer: "http://localhost/songs"
+2025/12/18 12:42:10 [notice] 16624#14504: signal process started
