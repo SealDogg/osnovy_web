@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import create_tables, get_session
 from app.api.v1.songs import router
 
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 app.add_middleware(
     CORSMiddleware,
